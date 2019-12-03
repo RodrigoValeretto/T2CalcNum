@@ -23,34 +23,56 @@ double majoranteErroT()
     return res;
 }
 
-double FormulaTrapezio(int NT, double h1)
+double FormulaTrapezioRep(int NT, double h1)
 {
-    double soma = 0;
-    for(int i = 1; i <= NT; i++)
+    double x0 = (0*h1);
+    x0 = -pow(x0,2);
+    double xn = (NT*h1);
+    xn = -pow(xn, 2);
+    double xj;
+    double somatorio = 0;
+
+    for(int j = 1; j < NT; j++)
     {
-        double x0 = (i-1)*h1;
-        double x1 = (i*h1);
-        x0 = -pow(x0,2);
-        x1 = -pow(x1,2);
-        soma  = soma + (h1/2)*(exp(x0) + exp(x1));
+        xj = (j*h1);
+        xj = -pow(xj, 2);
+
+        somatorio = somatorio + exp(xj);
     }
 
-    return soma;
+    double res = (h1/2)*(exp(x0) + exp(xn) + 2*somatorio);
+    return res;
 }
 
-double FormulaSimpson(int NS, double h2)
+double FormulaSimpsonRep(int NS, double h2)
 {
     double soma = 0;
-    for(int i = 2; i <= NS; i+=2)
+    double somatorio1 = 0;
+    double somatorio2 = 0;
+
+    double x0 = (0*h2);
+    x0 = -pow(x0,2);
+    double xn = (NS*h2);
+    xn = -pow(xn,2);
+    double xj;
+
+    for(int j = 1; j <= NS/2; j++)
     {
-        double x0 = (i-2)*h2;
-        double x1 = ((i-1)*h2);
-        double x2 = (i*h2);
-        x0 = -pow(x0,2);
-        x1 = -pow(x1,2);
-        x2 = -pow(x2,2);
-        soma  = soma + (h2/3)*(exp(x0) + 4*exp(x1) + exp(x2));
+        xj = ((2*j-1)*h2);
+        xj = -pow(xj,2);
+
+        somatorio1 = somatorio1 + exp(xj);
+    } 
+
+    for(int j = 1; j < NS/2; j++)
+    {
+        xj = ((2*j)*h2);
+        xj = -pow(xj,2);
+
+        somatorio2 = somatorio2 + exp(xj);
     }
+
+    soma = (h2/3)*(exp(x0) + exp(xn) + 4*somatorio1 + 2*somatorio2);   
 
     return soma;
 }
@@ -59,7 +81,7 @@ int main()
 {
     //***PARTE 1***//
     double maj1 = majoranteErroT();
-    int  NT = calcunaN(maj1);
+    int NT = calcunaN(maj1);
 
     double maj2 = majoranteErroS();
     int NS = calcunaN(maj2);
@@ -67,17 +89,20 @@ int main()
     printf("NT = %d\n", NT);
     printf("NS = %d\n", NS);
 
-
     //***PARTE 2***//
     double h1 = 1.0/NT;
-    double h2 = 1.0/NS;
+    double h2;
+    if(NS%2 == 0)
+        h2 = 1.0/NS;
+    else
+    {
+        NS++;
+        h2 = 1.0/NS;
+    }
 
-    printf("Maj1 = %.8lf\n", h1);
-    printf("Maj2 = %.8lf\n", h2);
+    double res = FormulaTrapezioRep(NT, h1);
+    printf("Resposta com formula do Trapezio = %.8lf\n", res);
 
-    double res = FormulaTrapezio(NT, h1);
-    printf("Res1 = %.8lf\n", res);
-
-    double res2 = FormulaSimpson(NS, h2);
-    printf("Res2 = %.8lf\n", res2);
+    double res2 = FormulaSimpsonRep(NS, h2);
+    printf("Resposta com formula de Simpson-1/3 = %.8lf\n", res2);
 }
